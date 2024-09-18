@@ -3,7 +3,6 @@ from flask_openapi3 import OpenAPI
 import db
 from flask_cors import CORS
 
-
 app = OpenAPI(__name__)
 app.config['Database'] = 'tasks.db'
 CORS(app)
