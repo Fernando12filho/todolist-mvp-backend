@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, redirect, request
-from flask_openapi3 import OpenAPI
+from flask_openapi3 import OpenAPI, Tag
 import db #importa o banco de dados
 from flask_cors import CORS
 
@@ -15,9 +15,14 @@ db.init_app(app)
 def index():
     return redirect('/openapi')
 
+# definindo tags
+home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
+produto_tag = Tag(name="Produto", description="Adição, visualização e remoção de produtos à base")
+comentario_tag = Tag(name="Comentario", description="Adição de um comentário à um produtos cadastrado na base")
+
 
 #Rota para pegar tasks do banco de dados e passar para o front 
-@app.route('/tasks', methods=['GET'])
+@app.route('/tasks', methods=['GET'], tags=[home_tag])
 def select_tasks():
     print("In route tasks")
     db_conn = db.get_db() 
@@ -38,7 +43,7 @@ def select_tasks():
     return jsonify(tasks_list)
 
 #Rota para inserir um terefa no banco de dados
-@app.route('/insert', methods=['POST'])
+@app.route('/insert', methods=['POST'], tags=[produto_tag])
 def insert_task():
     title = request.form['title']
     description = request.form['description']
@@ -53,7 +58,7 @@ def insert_task():
     db_conn.commit()
 
 #Deletar tarefas ja feitas, deixas tarefas que ainda nao foram resolvidas
-@app.route('/end-day', methods=['POST'])
+@app.route('/end-day', methods=['DELETE'])
 def end_day():
     db_conn = db.get_db()
     db_conn.execute(

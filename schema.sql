@@ -1,11 +1,11 @@
 CREATE TABLE tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    descricao TEXT,
+    descricao TEXT DEFAULT " ",
     completed BOOLEAN NOT NULL DEFAULT 0
 );
 
 INSERT INTO tasks (title, descricao, completed) VALUES
-    ('Tarefa 1', 'Descricao da tarefa 1', 0),
-    ('Tarefa2', 'Descricao da tarefa 2', 1);
+    ('Exemplo 1', 'Antes do cafe da manha', 0),
+    ('Exemplo 2', 'Depois do almoco', 1);
 
