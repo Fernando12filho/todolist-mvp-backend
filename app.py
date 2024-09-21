@@ -1,7 +1,9 @@
+from typing import Optional
 from flask import Flask, jsonify, redirect, request
 from flask_openapi3 import OpenAPI, Tag
 import db #importa o banco de dados
 from flask_cors import CORS
+from pydantic import BaseModel
 
 #comentario teste
 app = OpenAPI(__name__)
@@ -15,22 +17,16 @@ db.init_app(app)
 def index():
     return redirect('/openapi')
 
-# definindo tags
-home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
-produto_tag = Tag(name="Produto", description="Adição, visualização e remoção de produtos à base")
-comentario_tag = Tag(name="Comentario", description="Adição de um comentário à um produtos cadastrado na base")
-
 
 #Rota para pegar tasks do banco de dados e passar para o front 
-@app.route('/tasks', methods=['GET'], tags=[home_tag])
+@app.get('/tasks')
 def select_tasks():
     print("In route tasks")
-    db_conn = db.get_db() 
+    db_conn = db.get_db()
     tasks = db_conn.execute(
         'SELECT id, title, descricao, completed FROM tasks'
     ).fetchall()
 
-    #transformar em uma lista de dicionarios para passar para JSON
     tasks_list = []
     for task in tasks:
         tasks_list.append({
@@ -43,13 +39,13 @@ def select_tasks():
     return jsonify(tasks_list)
 
 #Rota para inserir um terefa no banco de dados
-@app.route('/insert', methods=['POST'], tags=[produto_tag])
+@app.post('/insert')
 def insert_task():
-    title = request.form['title']
-    description = request.form['description']
-    completed = False
+    title = request.form.get('title')
+    description = request.form.get('description')
+    completed = False  # Definir como False por padrão, já que novas tarefas começam não completadas
 
-    #Connexao com o banco de dados, sempre mesmo padrao
+    # Conexão com o banco de dados
     db_conn = db.get_db()
     db_conn.execute(
         'INSERT INTO tasks (title, descricao, completed) VALUES (?, ?, ?)',
@@ -57,8 +53,10 @@ def insert_task():
     )
     db_conn.commit()
 
+    return {"message": "Task created successfully"}, 201
+
 #Deletar tarefas ja feitas, deixas tarefas que ainda nao foram resolvidas
-@app.route('/end-day', methods=['DELETE'])
+@app.delete('/end-day')
 def end_day():
     db_conn = db.get_db()
     db_conn.execute(
@@ -68,16 +66,21 @@ def end_day():
     return {'message': 'Completed tasks deleted'}, 200
 
 #Atualiza tarefas feitas
-@app.route('/update/<int:task_id>', methods=['POST'])
+@app.put('/update/<int:task_id>')
 def update_task(task_id):
-    data = request.json
-    completed = data.get('completed')
-
-    db_conn = db.get_db()  # Get the database connection
-    db_conn.execute(
-        'UPDATE tasks SET completed = ? WHERE id = ?',
-        (completed, task_id)
-    )
-    db_conn.commit()  # Commit the transaction
-
-    return jsonify({"message": "Task Updated Successfully"})
+    try:
+        print(f"Received request to update task with ID: {task_id}")
+        
+        # Access the JSON body
+        data = request.json
+        completed = data.get('completed')
+        
+        # Here you would typically update your database
+        db_conn = db.get_db()
+        db_conn.execute('UPDATE tasks SET completed = ? WHERE id = ?', (completed, task_id))
+        db_conn.commit()
+        
+        return jsonify({"message": "Task Updated Successfully"}), 200
+    except Exception as e:
+        print(f"Error updating task: {str(e)}")
+        return jsonify({"error": str(e)}), 500
