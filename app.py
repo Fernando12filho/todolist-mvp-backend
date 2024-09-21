@@ -13,10 +13,10 @@ CORS(app)
 #inicia banco de dados
 db.init_app(app)
 
-
 @app.route('/')
 def index():
     return redirect('/openapi')
+
 
 #Rota para pegar tasks do banco de dados e passar para o front 
 @app.get('/tasks')
@@ -66,7 +66,7 @@ def end_day():
     return {'message': 'Completed tasks deleted'}, 200
 
 #Atualiza tarefas feitas
-@app.put('/update/<int:task_id>')
+@app.route('/update/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
     try:
         print(f"Received request to update task with ID: {task_id}")

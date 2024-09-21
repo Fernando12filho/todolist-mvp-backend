@@ -1,0 +1,45 @@
+# Task Manager Application
+
+Esta é uma aplicação web simples de gerenciamento de tarefas construída com Flask.
+A aplicação permite criar, atualizar e gerenciar tarefas, com a habilidade de alterar o
+status de uma tarefa através de um checkbox.
+Ela utiliza um banco de dados SQLite para armazenar as tarefas e possui uma API para interagir
+com a interface front-end.
+
+## Funcionalidades
+
+- Criar novas tarefas com título e descrição.
+- Atualizar o status de uma tarefa (concluída ou não).
+- Visualizar a lista de tarefas existentes.
+- Marcar tarefas como "feitas" ou "não feitas" através de um checkbox.
+
+## Tecnologias Utilizadas
+
+- **Backend**: Flask (Python)
+- **Frontend**: HTML, CSS, JavaScript
+- **Banco de Dados**: SQLite
+- **Bibliotecas**: 
+  - Flask
+  - SQLite3
+
+## Requisitos
+
+- Python 3.x
+- Flask
+- SQLite3
+
+## Iniciando a Aplicação
+
+Inicie o ambiente virtual com:
+> python -m venv myenv
+> myenv\Scripts\activate
+
+Instale as dependencias com:
+> pip install -r requirements.txt
+
+Inicialize o banco de dados:
+> flask --app app init-db
+
+Inicialize o app:
+> flask --app app run
+
