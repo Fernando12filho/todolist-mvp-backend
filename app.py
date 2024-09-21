@@ -13,10 +13,10 @@ CORS(app)
 #inicia banco de dados
 db.init_app(app)
 
+
 @app.route('/')
 def index():
     return redirect('/openapi')
-
 
 #Rota para pegar tasks do banco de dados e passar para o front 
 @app.get('/tasks')
