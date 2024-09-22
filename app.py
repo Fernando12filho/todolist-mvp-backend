@@ -17,10 +17,28 @@ db.init_app(app)
 def index():
     return redirect('/openapi')
 
+# Definindo uma tag
+task_tag = Tag(name="Task", description="Operações relacionadas às tarefas")
+
+# Schemas usando Pydantic
+class TaskSchema(BaseModel):
+    title: str
+    description: str
+    completed: bool
+
+class TaskResponseSchema(BaseModel):
+    id: int
+    title: str
+    description: str
+    completed: bool
 
 #Rota para pegar tasks do banco de dados e passar para o front 
-@app.get('/tasks')
+@app.get('/tasks', tags=[task_tag], responses={"200": TaskResponseSchema})
 def select_tasks():
+    """
+    Faz a busca de todas as tasks existentes
+    """
+    
     print("In route tasks")
     db_conn = db.get_db()
     tasks = db_conn.execute(
@@ -39,8 +57,12 @@ def select_tasks():
     return jsonify(tasks_list)
 
 #Rota para inserir um terefa no banco de dados
-@app.post('/insert')
-def insert_task():
+@app.post('/insert', tags=[task_tag], responses={"200": TaskSchema})
+def insert_task(form: TaskSchema):
+    """
+    Adiona uma tarefa ao banco de dados
+    """
+    
     title = request.form.get('title')
     description = request.form.get('description')
     completed = False  # Definir como False por padrão, já que novas tarefas começam não completadas
@@ -58,6 +80,9 @@ def insert_task():
 #Deletar tarefas ja feitas, deixas tarefas que ainda nao foram resolvidas
 @app.delete('/end-day')
 def end_day():
+    """
+    Termina o dia deletando tarefas que ja foram completadas
+    """
     db_conn = db.get_db()
     db_conn.execute(
         'DELETE FROM tasks WHERE completed = 1'
@@ -68,6 +93,9 @@ def end_day():
 #Atualiza tarefas feitas
 @app.route('/update/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
+    """
+    Faz o update de uma tarefa pra completa ou incompleta
+    """
     try:
         print(f"Received request to update task with ID: {task_id}")
         
